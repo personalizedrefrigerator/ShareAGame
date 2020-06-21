@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8"/>
+        <meta name = "viewport" content="width=device-width, initial-scale=1"/>
+        <link rel = "icon" href = "favicon.png"/>
+        
+        <title>404 -- File Not Found</title>
+        <!-- Other media types include "printer" and "all" -->
+        <style media = "screen">
+            body
+            {
+                background-image: radial-gradient(rgba(0, 200, 255, 0.8), white);
+                background-size: 10px 10px;
+                
+                font-family: sans;
+                color: rgba(0, 0, 0, 0.7);
+            }
+        
+            #content
+            {
+                border-radius: 10px;
+                max-width: 400px;
+                
+                margin: 10vh auto 5vh auto;
+                
+                box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.5), -1px -1px 1px rgba(0, 0, 0, 0.1);
+                
+                padding-left: 40px;
+                padding-right: 40px;
+                padding-top: 15px;
+                padding-bottom: 15px;
+                
+                background-color: rgba(255, 255, 255, 0.8);
+                
+                transition: 1s ease all;
+            }
+            
+            #content:hover
+            {
+                background-color: white;
+            }
+            
+            a
+            {
+                color: #ffaa00;
+                
+                border-radius: 5px;
+                
+                box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+                
+                background-color: rgba(255, 240, 255, 0.5);
+                
+                padding: 10px;
+                width: 100%;
+                
+                display: block;
+                
+                margin-top: 10px;
+                margin-bottom: 10px;
+                
+                height: 15pt;
+                font: 12pt Sans;
+                
+                text-align: center;
+                
+                text-decoration: none;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+                
+                transform: matrix(1, 0, 0, 1, 0, 0);
+                
+                transition: 0.6s linear all;
+            }
+            
+            a:visited
+            {
+                color: #ddaa60;
+                font-weight: bold;
+            }
+            
+            a:hover
+            {
+                background-color: rgba(255, 245, 245, 0.7);
+                transform: matrix(1, 0.01, 0, 1, 0, 0);
+            }
+            
+            h1, h2, h3, h4, h5, h6
+            {
+                color: rgba(0, 100, 100, 0.7);
+                text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+                transform: matrix(1, 0.03, 0.06, 1.5, 0, 0);
+                
+                border-bottom: 2px solid gray;
+                
+                text-align: center;
+            }
+            
+            h2, h3, h4, h5, h6
+            {
+                transform: matrix(1, 0, 0, 1, 0, 0);
+                border-bottom: 1px solid gray;
+            }
+            
+            p
+            {
+                text-indent: 5%;
+            }
+            
+            ::-moz-selection
+            {
+                background-color: gray;
+                color: #ffffff;
+                outline: 5px solid green;
+            }
+            
+            ::selection
+            {
+                background-color: gray;
+                color: #ffffff;
+                outline: 5px solid green;
+            }
+            
+            @media (max-width: 400px)
+            {
+                #content
+                {
+                    margin: 0 0 0 0;
+                    padding: 5px;
+                    
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    
+                    border-radius: 0px;
+                    
+                    background-color: rgba(255, 200, 200, 0.7);
+                    background-image: linear-gradient(-12deg, rgba(255, 0, 0, 0.1), white, rgba(0, 255, 255, 0.1));
+                    
+                }
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div id="content">
+            <h1>404 Error</h1>
+            <p>The requested file was not found on the server. Please check the URL for errors.</p>
+            
+            <h2>You may want to visit:</h2>
+            <a href = "index.html">The Main Page</a>
+            <a href = "description.html">The Description Page</a>
+        </div>
+    </body>
+</html>

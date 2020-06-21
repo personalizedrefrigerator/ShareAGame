@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shared Game Description</title>
+
+    <link rel = "icon" href = "favicon.png"/>
+
+    <meta name = "viewport" content = "width=device-width"/>
+    <meta content = "text/html;charset=utf-8" http-equiv = "content-type"/>
+    <meta content = "utf-8" http-equiv = "encoding"/>
+
+    <style media = "screen">
+
+body
+{
+    background-image: radial-gradient(rgba(100, 200, 255, 1.0), white);
+    background-size: 3px 3px;
+}
+
+#contentContainer
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    
+    z-index: 1;
+}
+
+#content
+{
+    border: 1px solid gray;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    padding-top: 1vh;
+    
+    margin-top: 5%;
+    margin-bottom: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    
+    max-width: 500px;
+    
+    background-color: rgba(255, 255, 255, 0.7);
+    
+    border-radius: 5px;
+    
+    box-shadow: -10px -10px 10px rgba(255, 255, 255, 0.3);
+    
+    background-image: linear-gradient(30deg, rgba(255, 255, 255, 0.1), rgba(200, 255, 200, 0.3), rgba(255, 255, 255, 0.1));
+    text-shadow: 0px 0px 0px rgba(255, 255, 255, 0.5);
+    
+    color: #000000;
+    
+    transition: 0.5s ease all;
+}
+
+::-moz-selection
+{
+    background: #44aaff;
+    color: white;
+}
+
+::selection
+{
+    background: #44aaff;
+    color: white;
+}
+
+#content > #description
+{
+    text-indent: 18pt;
+    font: 12pt Serif;
+}
+
+#content:hover
+{
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: -10px -10px 40px rgba(200, 255, 255, 0.5);
+    text-shadow: 1px 1px 2px rgba(250, 255, 0, 0.2);
+    
+    color: #001100;
+}
+
+@keyframes loadAnimation
+{
+    0%
+    {
+        transform: scale(1, 1) matrix(1, 0, 0.2, 1, 0, 0);
+    }
+    
+    50%
+    {
+        transform: scale(1, -1) matrix(1, 0.5, 0.1, 1, 0, 0);
+    }
+    
+    100%
+    {
+        transform: scale(1, 1) matrix(1, 0, 0.2, 1, 0, 0);
+    }
+}
+
+.loading
+{
+    transform: matrix(1, 0, 0, 1, 0, 0);
+
+    animation: loadAnimation 2s infinite;
+    
+    padding: 6px;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.5) 40%, rgba(255, 255, 255, 0.0) 60%);
+}
+
+h1, h2, h3, h4, h5, h6
+{
+    text-align: center;
+    border-bottom: 2px solid black;
+    
+    font-family: Sans;
+}
+
+#background
+{
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 0;
+    padding: 0px;
+}
+
+#mainCanvas
+{
+    width: 100vw;
+    height: 100vh;
+    margin: 0px;
+}
+
+@media (max-width: 450px)
+{
+    #content
+    {
+        padding: 0px;
+        border-radius: 0px;
+        margin: 0px;
+    }
+}
+        
+    </style>
+</head>
+
+<body>
+<div id = "background">
+    <canvas id = "mainCanvas" media = "screen"></canvas>
+</div>
+
+<div id = "contentContainer">
+    <div id = "content">
+        <center class = "loading">Loading...</center>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase.js"></script>
+
+<script>
+    var progress = 0;
+    try
+    {
+      // Initialize Firebase
+      var config =
+      {
+        apiKey: "AIzaSyAt-B8trwHbbGKNOxYqZvuL5xvBu1XRtHg",
+        authDomain: "share-dgame.firebaseapp.com",
+        databaseURL: "https://share-dgame.firebaseio.com",
+        projectId: "share-dgame",
+        storageBucket: "share-dgame.appspot.com",
+        messagingSenderId: "140193694570"
+      };
+
+
+      firebase.initializeApp(config);
+      
+      progress = 1;
+      
+      window.database = firebase.database();
+      var users = database.ref("users");
+      
+      progress = 2;
+      
+      window.users = database.ref("users");
+      window.gameData = database.ref("gameData");
+      
+      progress = 3;
+      
+      window.authorization = firebase.auth();
+      window.storage=firebase.storage();
+      window.storageRef=storage.ref();
+  }
+  catch(e)
+  {
+    window.firebaseError = e + ". Help: window.firebase: " + window.firebase + ", ";
+    window.firebaseError += "Pages: " + window.pages + ". Progress: " + progress + ".";
+  }
+</script>
+
+<!-- A separate script block for error handling. -->
+<script>
+    function textToHTML(text)
+    {
+        var result = "";
+        
+        var inParagraph = false,
+            inHeader = false;
+            
+        var lastCharacter = undefined;
+        
+        var currentCharacter = '';
+        for(var i = 0; i < text.length; i++)
+        {
+            currentCharacter = text.charAt(i);
+            
+            switch(currentCharacter)
+            {
+                case '<':
+                    result += "&lt;";
+                    break;
+                case '>':
+                    result += "&gt;";
+                    break;
+                case '\n':
+                    if(inParagraph)
+                    {
+                        result += "</p>";
+                    }
+                    
+                    inParagraph = true;
+                
+                    result += "<p>";
+                    break;
+                case '_':
+                    if(inHeader)
+                    {
+                        result += "</h2>";
+                        
+                        inHeader = false;
+                    }
+                    else if(lastCharacter && (lastCharacter === " " || lastCharacter === "\n") || lastCharacter === undefined)
+                    {
+                        inHeader = true;
+                
+                        result += "<h2>";
+                    }
+                    else
+                    {
+                        result += "_";
+                    }
+                    break;
+                case '&':
+                    result += "&amp;";
+                    break;
+                default:
+                    result += currentCharacter;
+            }
+
+            
+            lastCharacter = currentCharacter;
+        }
+        
+        if(inParagraph)
+        {
+            result += "</p>";
+        }
+                    
+        if(inHeader)
+        {
+            result += "</h2>";
+        }
+        
+        return result;
+    }
+
+    function main()
+    {
+        var content = document.getElementById("content");
+        
+        if(window.database)
+        {
+            window.database.ref("gameDescription").once("value", function(data)
+            {
+                var text = data.val();
+                
+                content.innerHTML = "";
+                
+                var header = document.createElement("h1");
+                header.innerHTML = "Game Description";
+                
+                var description = document.createElement("div");
+                description.innerHTML = textToHTML(text);
+                
+                description.setAttribute("id", "description");
+                
+                content.appendChild(header);
+                content.appendChild(description);
+            }).catch(function(error)
+            {
+                content.style.color = "red";
+                content.textContent = "Error: " + error;
+            });
+        }
+        else
+        {
+            content.style.color = "red";
+            content.textContent = "An error occured! The database did not load. Message: " + window.firebaseError + ", progress: " + progress;
+        }
+    }
+    
+    main();
+</script>
+
+<script src = "Vector.js"></script>
+<script src = "Matrix.js"></script>
+<script src = "Objects.js"></script>
+
+<!-- Background Script -->
+<script media = "screen">
+    var content = document.getElementById("content");
+    var canvas = document.getElementById("mainCanvas");
+    var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    
+    var viewMatrix;
+    var lastWidth = 0, lastHeight = 0;
+    var screenResoultion = 300;
+    function resizeCheck()
+    {
+        if(lastWidth !== canvas.clientWidth || lastHeight !== canvas.clientHeight)
+        {
+            if(canvas.clientHeight > canvas.clientWidth)
+            {
+                canvas.height = screenResoultion;
+                canvas.width = screenResoultion;
+            }
+            else
+            {
+                canvas.width = screenResoultion;
+                canvas.height = screenResoultion;
+            }
+            gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+            
+            viewMatrix = Matrix44Helper.perspective(70 * Math.PI / 180, 1, 2000, canvas.height / canvas.width);
+            
+            //viewMatrix.transpose();
+            
+            gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix.to1DArray());
+            
+            lastWidth = canvas.clientWidth;
+            lastHeight = canvas.clientHeight;
+        }
+    }
+    
+    function compileShader(gl, shaderType, shaderSource)
+    {
+        var shader = gl.createShader(shaderType);
+        gl.shaderSource(shader, shaderSource);
+        
+        gl.compileShader(shader);
+        
+        if(gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+        {
+            return shader;
+        }
+        else
+        {
+            canvas.parentElement.innerHTML = "Shader Error: " + gl.getShaderInfoLog(shader);
+            gl.deleteShader(shader);
+        }
+    }
+    
+    function linkProgram(gl, vertexShader, fragmentShader)
+    {
+        var program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        
+        gl.linkProgram(program);
+        
+        if(gl.getProgramParameter(program, gl.LINK_STATUS))
+        {
+            return program;
+        }
+        else
+        {
+            canvas.parentElement.innerHTML = "Program Error: " + gl.getProgramInfoLog(program);
+            
+            gl.deleteProgram(program);
+        }
+    }
+    
+    var vertexShaderSource = 
+    `
+        attribute vec4 a_position;
+        attribute vec3 a_normal;
+        
+        uniform mat4 u_world;
+        uniform mat4 u_camera;
+        uniform mat4 u_view;
+        
+        uniform vec4 u_color;
+        uniform vec3 u_cameraPosition;
+        uniform vec3 u_lightPosition;
+        
+        varying vec4 v_color;
+        varying vec3 v_normal;
+        varying vec3 v_toLight;
+        varying vec3 v_toCamera;
+        
+        void main()
+        {
+            gl_Position = u_view * u_camera * u_world * a_position;
+            
+            v_color = u_color;
+            
+            vec4 worldPosition = u_world * a_position;
+            
+            v_normal = mat3(u_world) * a_normal;
+            v_toLight = u_lightPosition - worldPosition.xyz;
+            v_toCamera = u_cameraPosition - worldPosition.xyz;
+        }
+    `;
+    
+    var fragmentShaderSource = 
+    `
+        precision mediump float;
+        
+        varying vec4 v_color;
+        varying vec3 v_normal;
+        varying vec3 v_toLight;
+        varying vec3 v_toCamera;
+        
+        void main()
+        {
+            vec3 normal = normalize(v_normal);
+            vec3 toLight = normalize(v_toLight);
+            vec3 toCamera = normalize(v_toCamera);
+            vec3 halfVector = normalize(toLight + toCamera);
+            
+            float lightValue = dot(normal, toLight);
+            float specular = dot(normal, halfVector);
+            
+            if(specular > 0.0)
+            {
+                specular = pow(specular, 150.0);
+            }
+            else
+            {
+                specular = 0.0;
+            }
+            
+            vec4 color = v_color;
+            
+            color.rgb *= lightValue;
+            color.rgb += specular;
+            
+            gl_FragColor = color;
+        }
+    `;
+    
+    var vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+    var fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+    var program = linkProgram(gl, vertexShader, fragmentShader);
+    
+    gl.useProgram(program);
+    
+    var positionLocation       = gl.getAttribLocation(program, "a_position"),
+        normalsLocation        = gl.getAttribLocation(program, "a_normal"),
+        colorLocation          = gl.getUniformLocation(program, "u_color"),
+        worldMatrixLocation    = gl.getUniformLocation(program, "u_world"),
+        cameraMatrixLocation   = gl.getUniformLocation(program, "u_camera"),
+        viewMatrixLocation     = gl.getUniformLocation(program, "u_view"),
+        cameraPositionLocation = gl.getUniformLocation(program, "u_cameraPosition"),
+        lightPositionLocation  = gl.getUniformLocation(program, "u_lightPosition");
+        
+    var cameraPosition = new Vector3(0.0, 1.0, -2.0),
+            lightPosition = new Vector3(0.0, 1.0, -2.0);
+    
+    gl.uniform3fv(cameraPositionLocation, cameraPosition.toArray());
+    gl.uniform3fv(lightPositionLocation, lightPosition.toArray());
+    
+    var cameraMatrix = Matrix44Helper.lookAt(cameraPosition, new Vector3(0, -1, 0), new Vector3(0, 0, -10)).getInverse();
+    
+    var worldMatrix = new Matrix(4, 4);
+    worldMatrix.toIdentityMatrix();
+    
+    viewMatrix = new Matrix(4, 4);
+    viewMatrix.toIdentityMatrix();
+    
+    gl.uniformMatrix4fv(cameraMatrixLocation, false, cameraMatrix.to1DArray());
+    gl.uniformMatrix4fv(viewMatrixLocation, false, viewMatrix.to1DArray());
+    gl.uniformMatrix4fv(worldMatrixLocation, false, worldMatrix.to1DArray());
+    
+    // Verticies
+    var vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    
+    gl.enableVertexAttribArray(positionLocation);
+    
+    gl.vertexAttribPointer(positionLocation, 3, // Components per calling
+            gl.FLOAT, // Data type,
+            false, // No normalization
+            0, 0); // Stride and offset.
+            
+    var verticies = object3D.getScaledCubeVerticies(1 / 20);
+    
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticies), gl.STATIC_DRAW);
+    
+    // Normals
+    var normalsBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
+    
+    gl.enableVertexAttribArray(normalsLocation);
+    
+    gl.vertexAttribPointer(normalsLocation, 3, // 3 per calling of vertex shader
+            gl.FLOAT, // Data type
+            false, // No normalization
+            0, 0); // Stride and offset.
+            
+    var normals = object3D.getNormals(verticies, false);
+            
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+    
+    gl.uniform4fv(colorLocation, [1.0, 1.0, 0.0, 1.0]);
+    
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    
+    var scrolling = false;
+    var lastScrollTop = 0,
+        scrollingCounter = 1000;
+    
+    content.parentElement.onscroll = render;
+    
+    function render()
+    {
+        resizeCheck();
+        
+        var time = (new Date()).getTime();
+        
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        
+        cameraPosition.y = 0;
+        
+        cameraMatrix = Matrix44Helper.lookAt(cameraPosition, new Vector3(0, -1, 0), new Vector3(0, 0, 10)).getInverse();
+        
+        cameraPosition.y = (content.parentElement.scrollTop) / (content.parentElement.scrollHeight - content.parentElement.clientHeight) * 7;
+        cameraMatrix.translate(0, -cameraPosition.y, 0);
+        
+        if(lastScrollTop !== content.parentElement.scrollTop || scrollingCounter < 100)
+        {
+            if(lastScrollTop === content.parentElement.scrollTop)
+            {
+                scrollingCounter++;
+            }
+            else
+            {
+                scrollingCounter = 0;
+            }
+        
+            scrolling = true;
+            lastScrollTop = content.parentElement.scrollTop;
+        }
+        else
+        {
+            scrolling = false;
+        }
+        
+        gl.uniformMatrix4fv(cameraMatrixLocation, false, cameraMatrix.to1DArray());
+        gl.uniform3fv(cameraPositionLocation, cameraPosition.toArray());
+        
+        
+        for(var i = 0; i < 160; i+=3)
+        {
+            worldMatrix.save();
+            
+                worldMatrix.translate(Math.sin(i / 5) * 3, i / 20 + Math.sin(i / 5) * 4, Math.max(5, (Math.sin(i) + 1.1) * 10));
+                
+                worldMatrix.rotateY(i / 11 + Math.sin(i / 8) + new Date().getTime() / 500000);
+                
+                gl.uniform4fv(colorLocation, [(Math.sin(i / 4) + 1) / 2, (Math.cos(i / 4) + 1) / 2, (Math.sin(i / 8) + 1) / 2, 1.0]);
+                
+                gl.uniformMatrix4fv(worldMatrixLocation, false, worldMatrix.to1DArray());
+                
+                gl.drawArrays(gl.TRIANGLES, 0, // Offset
+                        verticies.length / 3); // Count
+            worldMatrix.restore();
+        }
+        
+        worldMatrix.save();
+            
+            worldMatrix.translate(0, 30, -10, true);
+        
+            worldMatrix.scale(1000, 1, 1000, true);
+            worldMatrix.translate(-0.5, -0.5, -0.5, true);
+            
+            gl.uniform4fv(colorLocation, [0.5, 0.5, 0.5, 1.0]);
+            
+            gl.uniformMatrix4fv(worldMatrixLocation, false, worldMatrix.to1DArray());
+            
+            gl.drawArrays(gl.TRIANGLES, 0, // Offset
+                    verticies.length / 3); // Count
+        worldMatrix.restore();
+        
+        for(var depth = 1; depth < 3; depth ++)
+        {
+            for(var i = depth * 7; i < 40 - depth * 7; i += 0.4)
+            {
+                worldMatrix.save();
+                    
+                    worldMatrix.translate(Math.tan(i / 40 * 6.28) * 150, 30 + (1 + Math.sin(time / 50000)) * 10 * (depth + 1), -350 + Math.sin(i / 10) * 100 + depth * 70, true);
+                
+                    worldMatrix.scale(20 + depth + Math.sin(i) * 18, 200 + Math.tan(i) * 120, 30 + Math.cos(i / 4) * 18, true);
+                    
+                    worldMatrix.rotateY(Math.PI / 4, true);
+                    worldMatrix.rotateX(Math.PI / 4, true);
+                    worldMatrix.rotateZ(i / 10, true);
+                    
+                    worldMatrix.translate(-0.5, -0.5, -0.5, true);
+                    
+                    gl.uniform4fv(colorLocation, [1.0 - depth / 8, 1.0 - depth / 8, 1.0 - depth / 8, 1.0]);
+                    
+                    gl.uniformMatrix4fv(worldMatrixLocation, false, worldMatrix.to1DArray());
+                    
+                    gl.drawArrays(gl.TRIANGLES, 0, // Offset
+                            verticies.length / 3); // Count
+                worldMatrix.restore();
+            }
+        }
+    }
+    
+    function animate()
+    {
+        render();
+        
+        if(!scrolling)
+        {
+            setTimeout(animate, 300);
+        }
+        else
+        {
+            requestAnimationFrame(animate);
+        }
+    }
+    
+    animate();
+</script>
+
+</body>
+</html>
